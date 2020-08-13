@@ -1,10 +1,12 @@
-// This line of code avoid executing in Drupal admin and user menus
+// This if statement avoids executing code bellow in Drupal admin and user menus
 if (window.location.href.indexOf("/admin/") === -1 && window.location.href.indexOf("/user/") === -1) {
   /**
-   * Car & Road | Desktop
+   * Car & Road
    */
   (() => {
-    // SVG elements
+    // Side view car svg content
+    // ⚠️ XML and SVG data has been removed from original SVG file ⚠️
+    // ⚠️ Main g element requires a CSS class to set node variable (class="animatedCar") ⚠️
     const car = `
   <g class="animatedCar">
     <rect x="344.38" y="978.47" style="fill:#003D66;" width="35.88" height="155.53"/>
@@ -551,12 +553,13 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     </g>
   </g>`;
 
-    // White road line path requires a CSS class to set style and node: class="whiteFullLine"
+    // Desktop road
+    // ⚠️ White road line path requires a CSS class to set style and node: class="whiteFullLine" ⚠️
     const road = `
     <?xml version="1.0" encoding="utf-8"?>
     <!-- Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-       viewBox="0 0 2420 1325.63" style="enable-background:new 0 0 2420 1325.63;" xml:space="preserve">
+       viewBox="0 0 2420 1325.63" xml:space="preserve">
     <g id="Layer_1">
       <g>
         <rect x="340.21" y="210.56" style="fill:none;stroke:#000000;stroke-miterlimit:10;" width="1920" height="1080"/>
@@ -796,10 +799,33 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     </g>
     </svg>`;
 
+    // Event icon
+    // ⚠️ XML and SVG data has been removed from original SVG file ⚠️
+    // ⚠️ SVG has been wrapped inside a g tag ⚠️
+    // ⚠️ Main g element requires a CSS class to set style and node: class="eventPin" ⚠️
+    const pin = `
+    <circle style="fill:#004494;" cx="1500" cy="1720" r="325"/>
+    <g>
+      <path style="fill:none;stroke:#004494;stroke-width:15;stroke-miterlimit:10;" d="M1125,1715c0-8.4,0.28-16.73,0.82-24.98"/>
+      <path style="fill:none;stroke:#004494;stroke-width:15;stroke-miterlimit:10;stroke-dasharray:49.0497,49.0497;" d="
+        M1132.22,1641.42C1166.41,1469.54,1318.08,1340,1500,1340c190.36,0,347.59,141.84,371.77,325.6"/>
+      <path style="fill:none;stroke:#004494;stroke-width:15;stroke-miterlimit:10;" d="M1874.18,1690.02
+        c0.54,8.26,0.82,16.59,0.82,24.98"/>
+    </g>
+    <polygon style="fill:#004494;" points="1500,2445 1598.68,2005 1401.32,2005 "/>
+    <line style="fill:none;stroke:#004494;stroke-width:15;stroke-miterlimit:10;" x1="1500" y1="985" x2="1500" y2="1285"/>
+    <g>
+      <path style="fill:#F1F2F2;" d="M2391.42,929.83H608.58c-59.72,0-108.58-48.86-108.58-108.58V138.41
+        c0-59.72,48.86-108.58,108.58-108.58h1782.83c59.72,0,108.58,48.86,108.58,108.58v682.83
+        C2500,880.96,2451.14,929.83,2391.42,929.83z"/>
+      <path style="fill:none;stroke:#004494;stroke-width:15;stroke-miterlimit:10;stroke-dasharray:50.1177,50.1177;" d="
+        M2391.42,929.83H608.58c-59.72,0-108.58-48.86-108.58-108.58V138.41c0-59.72,48.86-108.58,108.58-108.58h1782.83
+        c59.72,0,108.58,48.86,108.58,108.58v682.83C2500,880.96,2451.14,929.83,2391.42,929.83z"/>
+    </g>`;
+
     // DOM wrapper for this widget
     const mainContainer = document.querySelector(".main-container");
     if (!mainContainer) return;
-
     mainContainer.insertAdjacentHTML("afterbegin", road);
 
     // Road svg element
@@ -821,18 +847,73 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     // Guide line node
     const path = svgElement.querySelector("g#Layer_2 g path.whiteFullLine");
 
+    // Events points
+    const events = Array.from(svgElement.querySelectorAll("g#Layer_4 g"));
+    if (!events) return;
+
+    events.forEach((e) => {
+      const x = e.getClientRects()[0].x;
+      const y = e.getClientRects()[0].y;
+
+      e.classList.add("eventPin");
+      e.innerHTML = pin;
+      e.setAttribute("transform", `matrix(1, 0, 0, 1, ${x}, ${y})`);
+    });
+
     // Animation settings
-    const speed = 0.00015;
+    const speed = 0.00095;
 
     let counter = 1;
+    let counterDestiny = 0;
     let movement = 0;
+
+    // Grid
+    const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020];
+    const h = years.length; // 2010 - 2020
+    const v = months.length; // 1 - 12
+    const curvePercent = 0.00925; // Aprox
+    const totalCurves = h - 1;
+    const cellPercent = (1 - curvePercent * totalCurves) / (h * v);
+
+    function getCellAndPercentByParams(m, y) {
+      function monthChecker(v) {
+        return v === parseInt(m);
+      }
+
+      function yearChecker(v) {
+        return v === parseInt(y);
+      }
+
+      const mi = /*parseInt(y) % 2 === 0 ? */ months.findIndex(
+        monthChecker
+      ); /* : months.reverse().findIndex(monthChecker)*/
+      const yi = years.findIndex(yearChecker);
+
+      const cellsCount = yi * months.length + (mi + 1);
+
+      console.log(mi, yi, cellsCount);
+
+      return 1 - cellsCount * cellPercent + cellPercent * 0.5 - curvePercent * yi;
+    }
 
     // Loop
     function loop() {
+      // Move by pressing keyboard
       if (movement !== 0) {
         counter += speed * movement;
-        counter = typeof counter === "number" ? parseFloat(counter.toFixed(4)) : counter;
-        console.log(`${counter}%`);
+        counter = counter < 0 ? 0.0 : counter > 1 ? 1.0 : counter;
+        //console.log(`${typeof counter === "number" ? parseFloat(counter.toFixed(4)) : counter}%`);
+      }
+
+      // TODO: Move by clicking location
+      if (counterDestiny !== 0) {
+        movement = counter < counterDestiny ? 1 : -1;
+
+        if (counterDestiny >= counter - 0.00065 && counterDestiny <= counter + 0.00065) {
+          counterDestiny = 0;
+          movement = 0;
+        }
       }
 
       animatedCarContainer.setAttribute(
@@ -846,6 +927,11 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
 
       requestAnimationFrame(loop);
     }
+
+    // Events
+    document.addEventListener("click", (e) => {
+      counterDestiny = getCellAndPercentByParams("12", "2015");
+    });
 
     document.addEventListener("keydown", (e) => {
       switch (e.key) {

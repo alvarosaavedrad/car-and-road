@@ -21,3 +21,7 @@ body {
 g#Layer_2 g path.whiteFullLine {
   stroke-dasharray: 20;
 }
+
+.eventPin {
+  transform-origin: 50% 100%;
+}
