@@ -1,0 +1,23 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #9f9f9f;
+  min-height: 100vh;
+  min-width: 100vw;
+  overflow-x: hidden;
+}
+
+.main-container {
+  position: relative;
+}
+
+.main-container svg {
+  position: absolute;
+}
+
+g#Layer_2 g path.whiteFullLine {
+  stroke-dasharray: 20;
+}
