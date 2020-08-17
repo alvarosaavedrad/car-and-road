@@ -812,71 +812,18 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
       <path style="fill:none;stroke:#004494;stroke-width:15;stroke-miterlimit:10;" d="M1874.18,1690.02
         c0.54,8.26,0.82,16.59,0.82,24.98"/>
     </g>
-    <polygon style="fill:#004494;" points="1500,2445 1598.68,2005 1401.32,2005 "/>
-    <line style="fill:none;stroke:#004494;stroke-width:15;stroke-miterlimit:10;" x1="1500" y1="985" x2="1500" y2="1285"/>
-    <g>
-      <path style="fill:#F1F2F2;" d="M2391.42,929.83H608.58c-59.72,0-108.58-48.86-108.58-108.58V138.41
-        c0-59.72,48.86-108.58,108.58-108.58h1782.83c59.72,0,108.58,48.86,108.58,108.58v682.83
-        C2500,880.96,2451.14,929.83,2391.42,929.83z"/>
-      <path style="fill:none;stroke:#004494;stroke-width:15;stroke-miterlimit:10;stroke-dasharray:50.1177,50.1177;" d="
-        M2391.42,929.83H608.58c-59.72,0-108.58-48.86-108.58-108.58V138.41c0-59.72,48.86-108.58,108.58-108.58h1782.83
-        c59.72,0,108.58,48.86,108.58,108.58v682.83C2500,880.96,2451.14,929.83,2391.42,929.83z"/>
-    </g>`;
-
-    // DOM wrapper for this widget
-    const mainContainer = document.querySelector(".main-container");
-    if (!mainContainer) return;
-    mainContainer.insertAdjacentHTML("afterbegin", road);
-
-    // Road svg element
-    const svgElement = mainContainer.querySelector("svg");
-    if (!svgElement) return;
-
-    // Group element to wrap the car node
-    const animatedCarContainerHTML = `<g class="animatedCarContainer"></g>`;
-    svgElement.insertAdjacentHTML("beforeend", animatedCarContainerHTML);
-
-    const animatedCarContainer = svgElement.querySelector(".animatedCarContainer");
-    if (!animatedCarContainer) return;
-    animatedCarContainer.insertAdjacentHTML("afterbegin", car);
-
-    // Car node
-    const animatedCar = mainContainer.querySelector(".animatedCar");
-    animatedCar.setAttribute("transform", "matrix(0.05, 0, 0, 0.05, 0, 0)");
-
-    // Guide line node
-    const path = svgElement.querySelector("g#Layer_2 g path.whiteFullLine");
-
-    // Events points
-    const events = Array.from(svgElement.querySelectorAll("g#Layer_4 g"));
-    if (!events) return;
-
-    events.forEach((e) => {
-      const x = e.getClientRects()[0].x;
-      const y = e.getClientRects()[0].y;
-
-      e.classList.add("eventPin");
-      e.innerHTML = pin;
-      e.setAttribute("transform", `matrix(1, 0, 0, 1, ${x}, ${y})`);
-    });
-
-    // Animation settings
-    const speed = 0.00095;
-
-    let counter = 1;
-    let counterDestiny = 0;
-    let movement = 0;
+    <polygon style="fill:#004494;" points="1500,2445 1598.68,2005 1401.32,2005 "/>`;
 
     // Grid
     const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020];
-    const h = years.length; // 2010 - 2020
-    const v = months.length; // 1 - 12
-    const curvePercent = 0.00925; // Aprox
+    const h = years.length; // 2010 - 2020 // 11
+    const v = months.length; // 1 - 12 // 12
+    const curvePercent = 0.00925; // Aprox values 😅
     const totalCurves = h - 1;
     const cellPercent = (1 - curvePercent * totalCurves) / (h * v);
 
-    function getCellAndPercentByParams(m, y) {
+    function getDestinyPercent(m, y) {
       function monthChecker(v) {
         return v === parseInt(m);
       }
@@ -885,28 +832,141 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
         return v === parseInt(y);
       }
 
-      const mi = /*parseInt(y) % 2 === 0 ? */ months.findIndex(
-        monthChecker
-      ); /* : months.reverse().findIndex(monthChecker)*/
+      const mi = months.findIndex(monthChecker);
       const yi = years.findIndex(yearChecker);
 
       const cellsCount = yi * months.length + (mi + 1);
 
-      console.log(mi, yi, cellsCount);
-
       return 1 - cellsCount * cellPercent + cellPercent * 0.5 - curvePercent * yi;
     }
 
-    // Loop
+    // DOM widget wrapper
+    const mainContainer = document.querySelector(".car-and-road_container");
+    if (!mainContainer) return;
+    mainContainer.insertAdjacentHTML("afterbegin", road);
+
+    // Road svg element
+    const svgElement = mainContainer.querySelector("svg");
+    if (!svgElement) return;
+
+    // Reference line for car animation node
+    const path = svgElement.querySelector("g#Layer_2 g path.whiteFullLine");
+
+    // Hiding grid
+    const gridNode = svgElement.querySelector("g#Layer_1");
+    if (!gridNode) return;
+    gridNode.style.display = "none";
+
+    // Hiding pink Xs
+    const pinkXs = svgElement.querySelector("g#Layer_4");
+    if (!pinkXs) return;
+    pinkXs.style.display = "none";
+
+    // Adding pins and their container
+    const json = [
+      {
+        year: "2011",
+        month: "01",
+        text:
+          "\u003Cp\u003Etest 1\u003Cbr /\u003E\nwith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003Cbr /\u003E\nand line breaks\u003C/p\u003E\n",
+      },
+      {
+        year: "2012",
+        month: "02",
+        text:
+          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+      },
+      {
+        year: "2013",
+        month: "04",
+        text:
+          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+      },
+      {
+        year: "2013",
+        month: "06",
+        text:
+          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+      },
+      {
+        year: "2014",
+        month: "09",
+        text:
+          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+      },
+      {
+        year: "2015",
+        month: "10",
+        text:
+          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+      },
+      {
+        year: "2015",
+        month: "11",
+        text:
+          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+      },
+    ];
+
+    const layer5HTML = `<g id="pins-container"></g>`;
+    svgElement.insertAdjacentHTML("beforeend", layer5HTML);
+    const layer5 = svgElement.querySelector("g#pins-container");
+
+    json.forEach((item) => {
+      const percent = getDestinyPercent(item.month, item.year);
+
+      layer5.insertAdjacentHTML(
+        "beforeend",
+        `<g class="eventPin eventPin_y${item.year}-m${item.month}" style="transform: matrix(0.05, 0, 0, 0.05, ${
+          path.getPointAtLength(percent * path.getTotalLength()).x
+        }, ${path.getPointAtLength(percent * path.getTotalLength()).y});">${pin}</g>`
+      );
+    });
+
+    layer5.style.transform = "translate(-80px, -128px)"; // Layer offset to fit pins over road
+
+    // Adding events to pins
+    const eventPins = Array.from(svgElement.querySelectorAll(".eventPin"));
+    if (!eventPins) return;
+
+    eventPins.forEach((ep) => {
+      ep.addEventListener("click", setNewDestinyPin);
+    });
+
+    function setNewDestinyPin(e) {
+      const data = e.currentTarget.classList[1].split("_")[1];
+      const m = data.split("-")[1].substr(1);
+      const y = data.split("-")[0].substr(1);
+      counterDestiny = getDestinyPercent(m, y);
+    }
+
+    // Adding a group element to wrap the car node
+    const animatedCarContainerHTML = `<g class="animatedCarContainer"></g>`;
+    svgElement.insertAdjacentHTML("beforeend", animatedCarContainerHTML);
+
+    const animatedCarContainer = svgElement.querySelector(".animatedCarContainer");
+    if (!animatedCarContainer) return;
+    animatedCarContainer.insertAdjacentHTML("afterbegin", car);
+
+    // Setting up car node
+    const animatedCar = mainContainer.querySelector(".animatedCar");
+    animatedCar.setAttribute("transform", "matrix(0.05, 0, 0, 0.05, 0, 0)");
+
+    // Loop settings
+    const speed = 0.00095;
+
+    let counter = 1;
+    let counterDestiny = 0;
+    let movement = 0;
+
     function loop() {
-      // Move by pressing keyboard
+      // Animating car by pressing keyboard
       if (movement !== 0) {
         counter += speed * movement;
         counter = counter < 0 ? 0.0 : counter > 1 ? 1.0 : counter;
-        //console.log(`${typeof counter === "number" ? parseFloat(counter.toFixed(4)) : counter}%`);
       }
 
-      // TODO: Move by clicking location
+      // Animating car by click on pin
       if (counterDestiny !== 0) {
         movement = counter < counterDestiny ? 1 : -1;
 
@@ -928,11 +988,7 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
       requestAnimationFrame(loop);
     }
 
-    // Events
-    document.addEventListener("click", (e) => {
-      counterDestiny = getCellAndPercentByParams("12", "2015");
-    });
-
+    // Keyboard events
     document.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "ArrowLeft":
