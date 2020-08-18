@@ -858,14 +858,16 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     if (!pinkXs) return;
     pinkXs.style.display = "none";
 
+    // Hiding months
+    const texts = Array.from(svgElement.querySelectorAll("g#Layer_3 text"));
+    if (!texts) return;
+
+    texts.forEach((t) => {
+      if (parseInt(t.textContent, 10) <= 12) t.style.display = "none";
+    });
+
     // TODO: Getting JSON data from ajax/10-years-json endpoint
     const json = [
-      {
-        year: "2011",
-        month: "01",
-        text:
-          "\u003Cp\u003Etest 1\u003Cbr /\u003E\nwith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003Cbr /\u003E\nand line breaks\u003C/p\u003E\n",
-      },
       {
         year: "2012",
         month: "02",
@@ -911,22 +913,22 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     ];
 
     // Adding pins and their container
-    const layer5HTML = `<g id="pins-container"></g>`;
-    svgElement.insertAdjacentHTML("beforeend", layer5HTML);
-    const layer5 = svgElement.querySelector("g#pins-container");
+    const pinsContainerHTML = `<g id="pins-container"></g>`;
+    svgElement.insertAdjacentHTML("beforeend", pinsContainerHTML);
+
+    const pinsContainer = svgElement.querySelector("g#pins-container");
+    pinsContainer.style.transform = "translate(-75px, -135px)"; // Layer offset to fit pins over road
 
     json.forEach((item) => {
       const percent = getDestinyPercent(item.month, item.year);
 
-      layer5.insertAdjacentHTML(
+      pinsContainer.insertAdjacentHTML(
         "beforeend",
         `<g class="eventPin eventPin_y${item.year}-m${item.month}" style="transform: matrix(0.05, 0, 0, 0.05, ${
           path.getPointAtLength(percent * path.getTotalLength()).x
         }, ${path.getPointAtLength(percent * path.getTotalLength()).y});">${pin}</g>`
       );
     });
-
-    layer5.style.transform = "translate(-75px, -135px)"; // Layer offset to fit pins over road
 
     // Adding click event to pins
     const eventPins = Array.from(svgElement.querySelectorAll(".eventPin"));
@@ -943,22 +945,25 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
       counterDestiny = getDestinyPercent(m, y);
 
       const matrix = e.currentTarget.getCTM();
-      console.log("matrix:", matrix);
+
       point.x = path.getPointAtLength(counterDestiny * path.getTotalLength()).x;
       point.y = path.getPointAtLength(counterDestiny * path.getTotalLength()).y;
-      console.log("point:", point);
-      position = point.matrixTransform(matrix);
-      console.log("position:", position);
+
+      const position = point.matrixTransform(matrix);
+
       message.style.transform = `translate(${position.x}px, ${position.y}px)`;
     }
 
     const messageHTML = `
-    <div class="message" style="background-color:red; padding:1rem; position:absolute; width: 200px;">Test</div>`;
+    <div class="message" style="height: 128px; position:relative; width: 320px;">
+      <div style="background-color:red; box-sizing:border-box; height: 100%; padding:1rem; position: absolute; transform: translate(-50%, -50%); width:100%;">
+        <p>Test</p>
+      </div>
+    </div>`;
     mainContainer.insertAdjacentHTML("beforeend", messageHTML);
 
     const message = document.querySelector(".message");
     if (!message) return;
-    console.log("message:", message);
 
     // Adding a group element to wrap the car node
     const animatedCarContainerHTML = `<g class="animatedCarContainer"></g>`;
