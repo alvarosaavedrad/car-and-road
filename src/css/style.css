@@ -9,7 +9,3 @@ body {
   min-width: 100vw;
   overflow-x: hidden;
 }
-
-g#Layer_2 g path.whiteFullLine {
-  stroke-dasharray: 20;
-}

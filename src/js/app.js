@@ -834,14 +834,19 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     // DOM widget wrapper
     const mainContainer = document.querySelector(".car-and-road_container");
     if (!mainContainer) return;
+    mainContainer.style.position = "relative";
     mainContainer.insertAdjacentHTML("afterbegin", road);
 
     // Road svg element
     const svgElement = mainContainer.querySelector("svg");
     if (!svgElement) return;
+    svgElement.style.position = "absolute";
+    const point = svgElement.createSVGPoint();
 
     // Reference line for car animation node
     const path = svgElement.querySelector("g#Layer_2 g path.whiteFullLine");
+    if (!path) return;
+    path.style.strokeDasharray = "20";
 
     // Hiding grid
     const gridNode = svgElement.querySelector("g#Layer_1");
@@ -921,7 +926,7 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
       );
     });
 
-    layer5.style.transform = "translate(-80px, -128px)"; // Layer offset to fit pins over road
+    layer5.style.transform = "translate(-75px, -135px)"; // Layer offset to fit pins over road
 
     // Adding click event to pins
     const eventPins = Array.from(svgElement.querySelectorAll(".eventPin"));
@@ -936,7 +941,24 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
       const m = data.split("-")[1].substr(1);
       const y = data.split("-")[0].substr(1);
       counterDestiny = getDestinyPercent(m, y);
+
+      const matrix = e.currentTarget.getCTM();
+      console.log("matrix:", matrix);
+      point.x = path.getPointAtLength(counterDestiny * path.getTotalLength()).x;
+      point.y = path.getPointAtLength(counterDestiny * path.getTotalLength()).y;
+      console.log("point:", point);
+      position = point.matrixTransform(matrix);
+      console.log("position:", position);
+      message.style.transform = `translate(${position.x}px, ${position.y}px)`;
     }
+
+    const messageHTML = `
+    <div class="message" style="background-color:red; padding:1rem; position:absolute; width: 200px;">Test</div>`;
+    mainContainer.insertAdjacentHTML("beforeend", messageHTML);
+
+    const message = document.querySelector(".message");
+    if (!message) return;
+    console.log("message:", message);
 
     // Adding a group element to wrap the car node
     const animatedCarContainerHTML = `<g class="animatedCarContainer"></g>`;
