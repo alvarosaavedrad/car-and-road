@@ -824,17 +824,8 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     const cellPercent = (1 - curvePercent * totalCurves) / (h * v);
 
     function getDestinyPercent(m, y) {
-      function monthChecker(v) {
-        return v === parseInt(m);
-      }
-
-      function yearChecker(v) {
-        return v === parseInt(y);
-      }
-
-      const mi = months.findIndex(monthChecker);
-      const yi = years.findIndex(yearChecker);
-
+      const mi = months.indexOf(parseInt(m));
+      const yi = years.indexOf(parseInt(y));
       const cellsCount = yi * months.length + (mi + 1);
 
       return 1 - cellsCount * cellPercent + cellPercent * 0.5 - curvePercent * yi;
@@ -862,7 +853,7 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     if (!pinkXs) return;
     pinkXs.style.display = "none";
 
-    // Adding pins and their container
+    // TODO: Getting JSON data from ajax/10-years-json endpoint
     const json = [
       {
         year: "2011",
@@ -906,8 +897,15 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
         text:
           "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
       },
+      {
+        year: "2019",
+        month: "10",
+        text:
+          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+      },
     ];
 
+    // Adding pins and their container
     const layer5HTML = `<g id="pins-container"></g>`;
     svgElement.insertAdjacentHTML("beforeend", layer5HTML);
     const layer5 = svgElement.querySelector("g#pins-container");
@@ -925,7 +923,7 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
 
     layer5.style.transform = "translate(-80px, -128px)"; // Layer offset to fit pins over road
 
-    // Adding events to pins
+    // Adding click event to pins
     const eventPins = Array.from(svgElement.querySelectorAll(".eventPin"));
     if (!eventPins) return;
 
@@ -960,13 +958,7 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     let movement = 0;
 
     function loop() {
-      // Animating car by pressing keyboard
-      if (movement !== 0) {
-        counter += speed * movement;
-        counter = counter < 0 ? 0.0 : counter > 1 ? 1.0 : counter;
-      }
-
-      // Animating car by click on pin
+      // Animating car
       if (counterDestiny !== 0) {
         movement = counter < counterDestiny ? 1 : -1;
 
@@ -974,6 +966,11 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
           counterDestiny = 0;
           movement = 0;
         }
+      }
+
+      if (movement !== 0) {
+        counter += speed * movement;
+        counter = counter < 0 ? 0.0 : counter > 1 ? 1.0 : counter;
       }
 
       animatedCarContainer.setAttribute(
@@ -989,7 +986,7 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     }
 
     // Keyboard events
-    document.addEventListener("keydown", (e) => {
+    /*document.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "ArrowLeft":
           movement = 1;
@@ -1011,7 +1008,7 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
           movement = 0;
           break;
       }
-    });
+    });*/
 
     // Init loop
     requestAnimationFrame(loop);
