@@ -1,16 +1,19 @@
-// This if statement avoids executing code bellow in Drupal admin and user menus
-if (window.location.href.indexOf("/admin/") === -1 && window.location.href.indexOf("/user/") === -1) {
+/**
+ * Car & Road
+ */
+(() => {
   /**
-   * Car & Road
+   * This if statement avoids executing code bellow in Drupal admin and user menus
    */
-  (() => {
-    /**
-     * SVG content
-     */
-    // Side view car svg content
-    // ⚠️ XML and SVG data has been removed from original SVG file ⚠️
-    // ⚠️ Main g element requires a CSS class to set node variable (class="animatedCar") ⚠️
-    const car = `
+  if (window.location.href.indexOf("/admin/") !== -1 || window.location.href.indexOf("/user/") !== -1) return;
+
+  /**
+   * SVG content
+   */
+  // Side view car svg content
+  // ⚠️ XML and SVG data has been removed from original SVG file ⚠️
+  // ⚠️ Main g element requires a CSS class to set node variable (class="animatedCar") ⚠️
+  const car = `
   <g class="animatedCar">
     <rect x="344.38" y="978.47" style="fill:#003D66;" width="35.88" height="155.53"/>
     <path style="fill:#003D66;" d="M383.75,1137.49H340.9V974.99h42.85V1137.49z M347.87,1130.52h28.9V981.96h-28.9V1130.52z"/>
@@ -556,9 +559,9 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     </g>
   </g>`;
 
-    // Desktop road
-    // ⚠️ White road line path requires a CSS class to set style and node: class="whiteFullLine" ⚠️
-    const road = `
+  // Desktop road
+  // ⚠️ White road line path requires a CSS class to set style and node: class="whiteFullLine" ⚠️
+  const road = `
     <?xml version="1.0" encoding="utf-8"?>
     <!-- Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -802,11 +805,11 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     </g>
     </svg>`;
 
-    // Event icon
-    // ⚠️ XML and SVG data has been removed from original SVG file ⚠️
-    // ⚠️ SVG has been wrapped inside a g tag ⚠️
-    // ⚠️ Main g element requires a CSS class to set style and node: class="eventPin" ⚠️
-    const pin = `
+  // Event icon
+  // ⚠️ XML and SVG data has been removed from original SVG file ⚠️
+  // ⚠️ SVG has been wrapped inside a g tag ⚠️
+  // ⚠️ Main g element requires a CSS class to set style and node: class="eventPin" ⚠️
+  const pin = `
     <circle style="fill:#004494;" cx="1500" cy="1720" r="325"/>
     <g>
       <path style="fill:none;stroke:#004494;stroke-width:15;stroke-miterlimit:10;" d="M1125,1715c0-8.4,0.28-16.73,0.82-24.98"/>
@@ -817,249 +820,252 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
     </g>
     <polygon style="fill:#004494;" points="1500,2445 1598.68,2005 1401.32,2005 "/>`;
 
-    /**
-     * JSON
-     */
-    // TODO: Getting JSON data from ajax/10-years-json endpoint
-    const json = [
-      {
-        year: "2011",
-        month: "02",
-        text:
-          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
-      },
-      {
-        year: "2012",
-        month: "02",
-        text:
-          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
-      },
-      {
-        year: "2013",
-        month: "04",
-        text:
-          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
-      },
-      {
-        year: "2013",
-        month: "06",
-        text:
-          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
-      },
-      {
-        year: "2014",
-        month: "09",
-        text:
-          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
-      },
-      {
-        year: "2015",
-        month: "10",
-        text:
-          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
-      },
-      {
-        year: "2015",
-        month: "11",
-        text:
-          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
-      },
-      {
-        year: "2019",
-        month: "10",
-        text:
-          "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
-      },
-    ];
+  /**
+   * JSON
+   */
+  // TODO: Getting JSON data from ajax/10-years-json endpoint
+  const json = [
+    {
+      year: "2011",
+      month: "02",
+      text:
+        "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+    },
+    {
+      year: "2012",
+      month: "02",
+      text:
+        "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+    },
+    {
+      year: "2013",
+      month: "04",
+      text:
+        "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+    },
+    {
+      year: "2013",
+      month: "06",
+      text:
+        "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+    },
+    {
+      year: "2014",
+      month: "09",
+      text:
+        "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+    },
+    {
+      year: "2015",
+      month: "10",
+      text:
+        "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+    },
+    {
+      year: "2015",
+      month: "11",
+      text:
+        "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+    },
+    {
+      year: "2019",
+      month: "10",
+      text:
+        "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+    },
+  ];
 
-    /**
-     * Loop config
-     */
-    const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020];
-    const h = years.length; // 2010 - 2020 // 11
-    const v = months.length; // 1 - 12 // 12
-    const curvePercent = 0.00925; // Aprox length value 😅
-    const totalCurves = h - 1;
-    const cellPercent = (1 - curvePercent * totalCurves) / (h * v);
-    const trackPercent = cellPercent * v + curvePercent;
-    const speed = 0.00095;
+  /**
+   * Loop config
+   */
+  const mode = "dev";
+  const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const years = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020];
+  const h = years.length; // 2010 - 2020 // 11
+  const v = months.length; // 1 - 12 // 12
+  const curvePercent = 0.00925; // Aprox length value 😅
+  const totalCurves = h - 1;
+  const cellPercent = (1 - curvePercent * totalCurves) / (h * v);
+  const trackPercent = cellPercent * v + curvePercent;
+  const speed = 0.00095;
 
-    let counter = 1;
-    let counterDestiny = 0;
-    let currentRow = 0;
-    let movement = 0;
+  let counter = 1;
+  let counterDestiny = 0;
+  let currentRow = 0;
+  let movement = 0;
 
-    /**
-     * Functions
-     */
-    // Main loop
-    function loop() {
-      if (counterDestiny !== 0) {
-        // Car arrives selected pin
-        if (counterDestiny >= counter - 0.00065 && counterDestiny <= counter + 0.00065) {
-          // Set message position
-          roadSvgPoint.x = path.getPointAtLength(counterDestiny * path.getTotalLength()).x;
-          roadSvgPoint.y = path.getPointAtLength(counterDestiny * path.getTotalLength()).y;
+  /**
+   * Functions
+   */
+  // Main loop
+  function loop() {
+    if (counterDestiny !== 0) {
+      // Car arrives selected pin
+      if (counterDestiny >= counter - 0.00065 && counterDestiny <= counter + 0.00065) {
+        // Set message position
+        roadSvgPoint.x = path.getPointAtLength(counterDestiny * path.getTotalLength()).x;
+        roadSvgPoint.y = path.getPointAtLength(counterDestiny * path.getTotalLength()).y;
 
-          const position = roadSvgPoint.matrixTransform(selectedPinMatrix);
+        const position = roadSvgPoint.matrixTransform(selectedPinMatrix);
 
-          message.style.transform = `translate(${position.x}px, ${position.y}px)`;
-          message.style.display = "block";
+        message.style.transform = `translate(${position.x}px, ${position.y}px)`;
+        message.style.display = "block";
 
-          // Reset values
-          counterDestiny = 0;
-          movement = 0;
-        }
+        // Reset values
+        counterDestiny = 0;
+        movement = 0;
+      }
+    }
+
+    if (movement !== 0) {
+      // Hide message if car moves
+      if (message.style.display !== "none") {
+        message.style.display = "none";
       }
 
-      if (movement !== 0) {
-        // Hide message if car moves
-        if (message.style.display !== "none") {
-          message.style.display = "none";
-        }
+      counter += speed * movement;
+      counter = counter < 0 ? 0.0 : counter > 1 ? 1.0 : counter;
+    }
 
-        counter += speed * movement;
-        counter = counter < 0 ? 0.0 : counter > 1 ? 1.0 : counter;
-      }
+    // Set new car position while animation is available
+    animatedCarContainer.setAttribute(
+      "transform",
+      "translate(" +
+        (path.getPointAtLength(counter * path.getTotalLength()).x - 64) +
+        "," +
+        (path.getPointAtLength(counter * path.getTotalLength()).y - 96) +
+        ")"
+    );
 
-      // Set new car position while animation is available
-      animatedCarContainer.setAttribute(
-        "transform",
-        "translate(" +
-          (path.getPointAtLength(counter * path.getTotalLength()).x - 64) +
-          "," +
-          (path.getPointAtLength(counter * path.getTotalLength()).y - 96) +
-          ")"
-      );
+    // Flip car in every curve
+    flipCar();
 
-      // Flip car in every curve
-      flipCar();
-
-      /**
-       * Logging
-       */
+    /**
+     * Logging
+     */
+    if (mode === "dev") {
       document.querySelector(".log-helper").innerHTML = `
       Direction: ${movement}
       <br/>
       Current row: ${currentRow}
       `;
-
-      // Looping!
-      requestAnimationFrame(loop);
     }
 
-    // Set new destiny config
-    function setNewDestinyPin(e) {
-      // Required to set message position on display
-      selectedPinMatrix = e.currentTarget.getCTM();
+    // Looping!
+    requestAnimationFrame(loop);
+  }
 
-      // Set destiny in % and
-      const data = e.currentTarget.classList[1].split("_")[1];
-      const m = data.split("-")[1].substr(1);
-      const y = data.split("-")[0].substr(1);
-      counterDestiny = getDestinyPercent(m, y);
+  // Set new destiny config
+  function setNewDestinyPin(e) {
+    // Required to set message position on display
+    selectedPinMatrix = e.currentTarget.getCTM();
 
-      // Car direction move
-      movement = counter < counterDestiny ? 1 : counter > counterDestiny ? -1 : 0;
+    // Set destiny in % and
+    const data = e.currentTarget.classList[1].split("_")[1];
+    const m = data.split("-")[1].substr(1);
+    const y = data.split("-")[0].substr(1);
+    counterDestiny = getDestinyPercent(m, y);
 
-      // Get message content
-      const info = json.filter((i) => {
-        return i.month === m && i.year === y;
-      });
+    // Car direction move
+    movement = counter < counterDestiny ? 1 : counter > counterDestiny ? -1 : 0;
 
-      message.querySelector("p").innerHTML = info[0].text;
-
-      // Set car orientation
-      setCarOrientation();
-    }
-
-    // Check car orientation when car changes between rows
-    function flipCar() {
-      const newRow = parseInt(h - counter / trackPercent);
-
-      if (currentRow !== newRow) {
-        currentRow = newRow;
-        setCarOrientation();
-      }
-    }
-
-    // Set car orientation
-    function setCarOrientation() {
-      let dir = 1;
-
-      if (movement === -1) {
-        if (currentRow % 2 === 0) {
-          dir = 1;
-        } else {
-          dir = -1;
-        }
-      } else if (movement === 1) {
-        if (currentRow % 2 === 0) {
-          dir = -1;
-        } else {
-          dir = 1;
-        }
-      }
-
-      const xOffset = dir === 1 ? 0 : animatedCar.getBBox().x + animatedCar.getBBox().width * 0.05 * 0.65;
-      animatedCar.setAttribute("transform", `matrix(${0.05 * dir}, 0, 0, 0.05, ${xOffset}, 0)`);
-    }
-
-    // Cacl destiny percent
-    function getDestinyPercent(m, y) {
-      const mi = months.indexOf(parseInt(m));
-      const yi = years.indexOf(parseInt(y));
-      const cellsCount = yi * months.length + (mi + 1);
-
-      return 1 - cellsCount * cellPercent + cellPercent * 0.5 - curvePercent * yi;
-    }
-
-    /**
-     * DOM handler
-     */
-    // Getting widget wrapper
-    const mainContainer = document.querySelector(".car-and-road_container");
-    if (!mainContainer) return;
-    mainContainer.style.position = "relative";
-    mainContainer.insertAdjacentHTML("afterbegin", road);
-
-    // Getting road element
-    const roadElement = mainContainer.querySelector("svg");
-    if (!roadElement) return;
-    roadElement.style.position = "absolute";
-
-    // Getting reference line element for car animation
-    const path = roadElement.querySelector("g#Layer_2 g path.whiteFullLine");
-    if (!path) return;
-    path.style.strokeDasharray = "20";
-
-    // Adding pins container
-    const pinsContainerHTML = `<g id="pins-container"></g>`;
-    roadElement.insertAdjacentHTML("beforeend", pinsContainerHTML);
-
-    const pinsContainer = roadElement.querySelector("g#pins-container");
-    if (!pinsContainer) return;
-    pinsContainer.style.transform = "translate(-75px, -135px)"; // Layer offset to fit pins over road
-
-    // Adding pins regarding JSON input
-    json.forEach((item) => {
-      const percent = getDestinyPercent(item.month, item.year);
-
-      pinsContainer.insertAdjacentHTML(
-        "beforeend",
-        `<g class="eventPin eventPin_y${item.year}-m${item.month}" style="transform: matrix(0.05, 0, 0, 0.05, ${
-          path.getPointAtLength(percent * path.getTotalLength()).x
-        }, ${path.getPointAtLength(percent * path.getTotalLength()).y});">${pin}</g>`
-      );
+    // Get message content
+    const info = json.filter((i) => {
+      return i.month === m && i.year === y;
     });
 
-    // Getting pin elements
-    const eventPins = Array.from(roadElement.querySelectorAll(".eventPin"));
-    if (!eventPins) return;
+    message.querySelector("p").innerHTML = info[0].text;
 
-    // Adding message box
-    const messageHTML = `
+    // Set car orientation
+    setCarOrientation();
+  }
+
+  // Check car orientation when car changes between rows
+  function flipCar() {
+    const newRow = parseInt(h - counter / trackPercent);
+
+    if (currentRow !== newRow) {
+      currentRow = newRow;
+      setCarOrientation();
+    }
+  }
+
+  // Set car orientation
+  function setCarOrientation() {
+    let dir = 1;
+
+    if (movement === -1) {
+      if (currentRow % 2 === 0) {
+        dir = 1;
+      } else {
+        dir = -1;
+      }
+    } else if (movement === 1) {
+      if (currentRow % 2 === 0) {
+        dir = -1;
+      } else {
+        dir = 1;
+      }
+    }
+
+    const xOffset = dir === 1 ? 0 : animatedCar.getBBox().x + animatedCar.getBBox().width * 0.05 * 0.65;
+    animatedCar.setAttribute("transform", `matrix(${0.05 * dir}, 0, 0, 0.05, ${xOffset}, 0)`);
+  }
+
+  // Cacl destiny percent
+  function getDestinyPercent(m, y) {
+    const mi = months.indexOf(parseInt(m));
+    const yi = years.indexOf(parseInt(y));
+    const cellsCount = yi * months.length + (mi + 1);
+
+    return 1 - cellsCount * cellPercent + cellPercent * 0.5 - curvePercent * yi;
+  }
+
+  /**
+   * DOM handler
+   */
+  // Getting widget wrapper
+  const mainContainer = document.querySelector(".car-and-road_container");
+  if (!mainContainer) return;
+  mainContainer.style.position = "relative";
+  mainContainer.insertAdjacentHTML("afterbegin", road);
+
+  // Getting road element
+  const roadElement = mainContainer.querySelector("svg");
+  if (!roadElement) return;
+  roadElement.style.position = "absolute";
+
+  // Getting reference line element for car animation
+  const path = roadElement.querySelector("g#Layer_2 g path.whiteFullLine");
+  if (!path) return;
+  path.style.strokeDasharray = "20";
+
+  // Adding pins container
+  const pinsContainerHTML = `<g id="pins-container"></g>`;
+  roadElement.insertAdjacentHTML("beforeend", pinsContainerHTML);
+
+  const pinsContainer = roadElement.querySelector("g#pins-container");
+  if (!pinsContainer) return;
+  pinsContainer.style.transform = "translate(-75px, -135px)"; // Layer offset to fit pins over road
+
+  // Adding pins regarding JSON input
+  json.forEach((item) => {
+    const percent = getDestinyPercent(item.month, item.year);
+
+    pinsContainer.insertAdjacentHTML(
+      "beforeend",
+      `<g class="eventPin eventPin_y${item.year}-m${item.month}" style="transform: matrix(0.05, 0, 0, 0.05, ${
+        path.getPointAtLength(percent * path.getTotalLength()).x
+      }, ${path.getPointAtLength(percent * path.getTotalLength()).y});">${pin}</g>`
+    );
+  });
+
+  // Getting pin elements
+  const eventPins = Array.from(roadElement.querySelectorAll(".eventPin"));
+  if (!eventPins) return;
+
+  // Adding message box
+  const messageHTML = `
     <div class="message" style="
     display: none;
     height: auto;
@@ -1086,56 +1092,69 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
         left: 50%;"></div>
       </div>
     </div>`;
-    mainContainer.insertAdjacentHTML("beforeend", messageHTML);
+  mainContainer.insertAdjacentHTML("beforeend", messageHTML);
 
-    const message = document.querySelector(".message");
-    if (!message) return;
+  const message = document.querySelector(".message");
+  if (!message) return;
 
-    const roadSvgPoint = roadElement.createSVGPoint(); // Required to set message position when car arrives the clicked pin
-    let selectedPinMatrix; // Required to set message position when car arrives the clicked pin
+  const roadSvgPoint = roadElement.createSVGPoint(); // Required to set message position when car arrives the clicked pin
+  let selectedPinMatrix; // Required to set message position when car arrives the clicked pin
 
-    // Adding wrapper element to car node
-    const animatedCarContainerHTML = `<g class="animatedCarContainer"></g>`;
-    roadElement.insertAdjacentHTML("beforeend", animatedCarContainerHTML);
+  // Adding wrapper element to car node
+  const animatedCarContainerHTML = `<g class="animatedCarContainer"></g>`;
+  roadElement.insertAdjacentHTML("beforeend", animatedCarContainerHTML);
 
-    const animatedCarContainer = roadElement.querySelector(".animatedCarContainer");
-    if (!animatedCarContainer) return;
+  const animatedCarContainer = roadElement.querySelector(".animatedCarContainer");
+  if (!animatedCarContainer) return;
 
-    // Adding car svg to car container
-    animatedCarContainer.insertAdjacentHTML("afterbegin", car);
+  // Adding car svg to car container
+  animatedCarContainer.insertAdjacentHTML("afterbegin", car);
 
-    // Setting up car node
-    const animatedCar = mainContainer.querySelector(".animatedCar");
-    animatedCar.setAttribute("transform", "matrix(0.05, 0, 0, 0.05, 0, 0)");
+  // Setting up car node
+  const animatedCar = mainContainer.querySelector(".animatedCar");
+  animatedCar.setAttribute("transform", "matrix(0.05, 0, 0, 0.05, 0, 0)");
 
-    // Hiding grid
-    const gridNode = roadElement.querySelector("g#Layer_1");
-    if (!gridNode) return;
-    gridNode.style.display = "none";
+  // Hiding grid
+  const gridNode = roadElement.querySelector("g#Layer_1");
+  if (!gridNode) return;
+  gridNode.style.display = "none";
 
-    // Hiding pink Xs
-    const pinkXs = roadElement.querySelector("g#Layer_4");
-    if (!pinkXs) return;
-    pinkXs.style.display = "none";
+  // Hiding pink Xs
+  const pinkXs = roadElement.querySelector("g#Layer_4");
+  if (!pinkXs) return;
+  pinkXs.style.display = "none";
 
-    // Hiding months
-    const texts = Array.from(roadElement.querySelectorAll("g#Layer_3 text"));
-    if (!texts) return;
+  // Hiding months
+  const texts = Array.from(roadElement.querySelectorAll("g#Layer_3 text"));
+  if (!texts) return;
 
-    texts.forEach((t) => {
-      if (parseInt(t.textContent, 10) <= 12) t.style.display = "none";
+  texts.forEach((t) => {
+    if (parseInt(t.textContent, 10) <= 12) t.style.display = "none";
+  });
+
+  /**
+   * Events handler
+   */
+  // Adding click event to pins
+  eventPins.forEach((ep) => {
+    ep.addEventListener("click", setNewDestinyPin);
+  });
+
+  // Close message on click anywhere but pins
+  document.addEventListener("click", (e) => {
+    const path = e.path;
+
+    const pin = path.filter((n) => {
+      return n.classList ? Array.from(n.classList).includes("eventPin") : false;
     });
 
-    /**
-     * Events handler
-     */
-    // Adding click event to pins
-    eventPins.forEach((ep) => {
-      ep.addEventListener("click", setNewDestinyPin);
-    });
+    if (pin.length === 0) {
+      message.style.display = "none";
+    }
+  });
 
-    // Keyboard events
-    /*document.addEventListener("keydown", (e) => {
+  // Keyboard events
+  /*document.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "ArrowLeft":
           movement = 1;
@@ -1159,9 +1178,8 @@ if (window.location.href.indexOf("/admin/") === -1 && window.location.href.index
       }
     });*/
 
-    /**
-     * Init loop
-     */
-    requestAnimationFrame(loop);
-  })();
-}
+  /**
+   * Init loop
+   */
+  requestAnimationFrame(loop);
+})();
