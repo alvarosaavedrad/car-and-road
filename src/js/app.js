@@ -868,6 +868,12 @@
         "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
     },
     {
+      year: "2017",
+      month: "03",
+      text:
+        "\u003Cp\u003Etest 2\u003C/p\u003E\n\u003Cp\u003Ewith \u003Cstrong\u003Ebold text\u003C/strong\u003E\u003C/p\u003E\n\u003Cp\u003Eand paragraph tags\u003C/p\u003E\n",
+    },
+    {
       year: "2019",
       month: "10",
       text:
@@ -1046,7 +1052,7 @@
 
   const pinsContainer = roadElement.querySelector("g#pins-container");
   if (!pinsContainer) return;
-  pinsContainer.style.transform = "translate(-75px, -135px)"; // Layer offset to fit pins over road
+  pinsContainer.style.transform = "translate(-75px, -135px)"; // Layer offset to fit pins over road  😅
 
   // Adding pins regarding JSON input
   json.forEach((item) => {
