@@ -528,6 +528,9 @@
   const container = document.querySelector("div.container");
   if (!container) return;
 
+  // Road element
+  let roadElement;
+
   // Road guide element
   let guide;
 
@@ -542,6 +545,9 @@
   //car.setAttribute("transform", `matrix(-1, 0, 0, 1, ${car.getBBox().x + car.getBBox().width}, 0) translate(-128, 0)`);
   //car.setAttribute("transform", `matrix(1, 0, 0, 1, 0, 0) translate(128, 0)`);
 
+  // Message element
+  let message;
+
   // Log helper
   let logHelper;
 
@@ -549,11 +555,17 @@
    * Functions
    */
   function init() {
+    if (config.resolutionMode === getResolutionMode()) return;
+
     // Set resolution
     config.resolutionMode = getResolutionMode();
 
     // Set road
     container.innerHTML = getRoad();
+
+    // Get road element
+    roadElement = container.querySelector("[id^='road-']");
+    roadElement.style.position = "absolute";
 
     // Set car
     car = container.querySelector("image#car-image");
@@ -566,6 +578,9 @@
     config.curvePercent = getCurvePercent();
     config.rowLength = getRowLength();
 
+    // Set init position
+    setCarMatrix();
+
     // Set pins along the road
     useSymbols();
 
@@ -574,6 +589,9 @@
     eventPins.forEach((ep) => {
       ep.addEventListener("click", setNewDestinyPin);
     });
+
+    // Message
+    initMessage();
 
     // Log helper
     logHelper = document.querySelector(".log-helper");
@@ -596,6 +614,9 @@
         // Set car configuration
         setCarMatrix();
 
+        // Set message
+        message.style.display = "block";
+
         // Reset values
         config.counterDestiny = 0;
         config.movement = 0;
@@ -603,6 +624,12 @@
     }
 
     if (config.movement !== 0) {
+      // Hide message if car moves
+      if (message.style.display !== "none") {
+        message.style.display = "none";
+      }
+
+      // Set counter
       config.counter = config.counter - config.speed * config.movement;
       config.counter = config.counter < 0 ? 0 : config.counter > 1 ? 1 : config.counter;
 
@@ -823,7 +850,7 @@
 
     return {
       x: t[0].getBoundingClientRect().x,
-      y: t[0].getBoundingClientRect().y * 0.80125,
+      y: t[0].getBoundingClientRect().y * 0.80125, // Wrong!
     };
   }
 
@@ -903,11 +930,15 @@
     const y = data.split("-")[0].substr(1);
     config.counterDestiny = getDestinyPercent(m, y);
 
+    // Required to set message position on display
+    config.selectedPinMatrix = e.currentTarget.getCTM();
+
+    // Set message
+    setMessageContent(m, y);
+    setMessagePosition();
+
     // Car direction move
     config.movement = config.counter < config.counterDestiny ? -1 : config.counter > config.counterDestiny ? 1 : 0;
-
-    // Set car orientation
-    //setCarOrientation();
   }
 
   // Check if car changes row
@@ -928,7 +959,6 @@
 
     if (config.currentRow !== newRow) {
       config.currentRow = newRow;
-      //setCarOrientation();
     }
   }
 
@@ -942,6 +972,81 @@
     const d = config.counter / config.rowLength;
     const years = config.years.length * 2 - 1;
     return years - parseInt(d) - 1;
+  }
+
+  // Message settings
+  function initMessage() {
+    // Adding message box
+    const messageHTML = `
+    <div class="message" style="
+    display: none;
+    height: auto;
+    position:relative;
+    width: 320px;">
+      <div style="
+      background-color: #F1F2F2;
+      border: 4px dashed #004494;
+      border-radius: 1rem;
+      box-sizing: border-box;
+      padding:1rem;
+      position: absolute;
+      transform: translate(-50%, -100%);
+      width:100%;">
+        <p style="
+        font-family: 'sans-serif';">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sit amet feugiat est. Maecenas eget urna a augue tincidunt efficitur. Integer non egestas massa. Integer non egestas massa. Integer non egestas massa. Integer non egestas massa.</p>
+        <div style="
+        background-color: #004494;
+        height: 32px;
+        width: 4px;
+        position: absolute;
+        transform: translate(-50%, 100%);
+        bottom: 0;
+        left: 50%;"></div>
+      </div>
+    </div>`;
+
+    container.insertAdjacentHTML("beforeend", messageHTML);
+
+    message = document.querySelector(".message");
+    if (!message) return;
+
+    config.roadSvgPoint = roadElement.createSVGPoint(); // Required to set message position when car arrives the clicked pin
+    config.selectedPinMatrix = container.querySelector(".eventPin").getCTM(); // Required to set message position when car arrives the clicked pin
+  }
+
+  function setMessagePosition() {
+    config.roadSvgPoint.x = guide.getPointAtLength(config.counterDestiny * guide.getTotalLength()).x;
+    config.roadSvgPoint.y = guide.getPointAtLength(config.counterDestiny * guide.getTotalLength()).y;
+
+    const position = config.roadSvgPoint.matrixTransform(config.selectedPinMatrix);
+    const offset = getMessageOffset();
+
+    message.style.transform = `translate(${position.x + offset.x}px, ${position.y + offset.y}px)`;
+  }
+
+  function getMessageOffset() {
+    switch (config.resolutionMode) {
+      case "desktop":
+        return {
+          x: container.querySelector(".eventPin").getBoundingClientRect().width * 0.5,
+          y: 0,
+        };
+
+      case "tablet":
+        return {
+          x: container.querySelector(".eventPin").getBoundingClientRect().width * 2.85,
+          y: container.querySelector(".eventPin").getBoundingClientRect().height * 0.6,
+        };
+    }
+  }
+
+  function setMessageContent(m, y) {
+    // Get message content
+    const info = json.filter((i) => {
+      return i.month === m && i.year === y;
+    });
+
+    message.querySelector("p").innerHTML = info[0].text;
   }
 
   /**
