@@ -349,7 +349,7 @@
   <!-- Car -->
   <image id="car-image" width="${car.width}" height="${car.height}" ${
     config.mode === "dev" ? `style="opacity:0.5;"` : ""
-  } href="./svg/car-${getCar()}.svg" />`;
+  } href="./sites/all/modules/features/esm_10_years/resources/car-${getCar()}.svg" />`;
 
   /**
    * JSON
@@ -511,7 +511,7 @@
    * Global config
    */
   const config = {
-    mode: "",
+    mode: "dev",
     counter: 1,
     counterDestiny: 1,
     movement: 0,
@@ -519,13 +519,14 @@
     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     years: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020],
     speed: 0.00075,
+    maxDistanceMobile: 0,
   };
 
   /**
    * DOM elements
    */
   // DOM container
-  const container = document.querySelector("div.container");
+  const container = document.querySelector("div.content.widget-10-years");
   if (!container) return;
 
   // Road element
@@ -590,14 +591,20 @@
       ep.addEventListener("click", setNewDestinyPin);
     });
 
+    // Mobile
+    if (config.resolutionMode === "mobile") {
+      config.maxDistanceMobile = getDistanceBetweenPinsMobile(
+        { month: json[0].month, year: json[0].year },
+        { month: json[json.length - 1].month, year: json[json.length - 1].year }
+      );
+    }
+
     // Message
     initMessage();
 
     // Log helper
-    logHelper = document.querySelector(".log-helper");
-
-    if (config.mode !== "dev") {
-      logHelper.style.display = "none";
+    if (config.mode === "dev") {
+      logHelper = document.querySelector(".log-helper");
     }
 
     // Init loop
@@ -775,8 +782,31 @@
     return config.cellPercent * config.months.length * 0.5 + config.curvePercent;
   }
 
+  function getDistanceBetweenPinsMobile(a, b) {
+    const firstY = getPinTransformYMobile(a);
+    const finalY = getPinTransformYMobile(b);
+    return finalY - firstY;
+  }
+
+  function getPinTransformYMobile(item) {
+    const text = getPinByMonthAndYearMobile(item);
+    const tf = text.getAttribute("transform").split("matrix(")[1].split(" ");
+    return parseFloat(tf[5].substr(0, tf[5].length - 1));
+  }
+
   // Car settings
   function getCarScale() {
+    if (config.resolutionMode === "mobile") {
+      return {
+        x: 1,
+        y: config.movement === 0 ? 1 : config.movement,
+      };
+    }
+
+    return getCarScaleDesktopTablet();
+  }
+
+  function getCarScaleDesktopTablet() {
     let dir = 1;
 
     if (config.movement === -1) {
@@ -800,17 +830,27 @@
   }
 
   function getCarPosition() {
-    const pos = {
-      x: 0,
-      y: 0,
-    };
-
     if (config.resolutionMode === "mobile") {
-      // TODO
+      return getCarPositionMobile({ month: "10", year: "2015" }); // Warning!
     } else {
-      pos.x = guide.getPointAtLength(config.counter * guide.getTotalLength()).x - car.getBBox().width * 0.5;
-      pos.y = guide.getPointAtLength(config.counter * guide.getTotalLength()).y - car.getBBox().height * 0.5;
+      return getCarPositionDesktopTablet();
     }
+  }
+
+  function getCarPositionDesktopTablet() {
+    return {
+      x: guide.getPointAtLength(config.counter * guide.getTotalLength()).x - car.getBBox().width * 0.5,
+      y: guide.getPointAtLength(config.counter * guide.getTotalLength()).y - car.getBBox().height * 0.5,
+    };
+  }
+
+  function getCarPositionMobile() {
+    const firstY = getPinTransformYMobile({ month: json[0].month, year: json[0].year });
+
+    const pos = {
+      x: car.getBBox().width * 1.135,
+      y: firstY + config.counter * config.maxDistanceMobile,
+    };
 
     return pos;
   }
@@ -819,6 +859,8 @@
     const scale = getCarScale();
     const pos = getCarPosition();
     const offset = scale.x === -1 ? car.getBBox().width : 0;
+
+    console.log(scale, "|", pos, "|", offset);
 
     car.setAttribute("transform", `matrix(${scale.x}, 0, 0, ${scale.y}, ${pos.x + offset}, ${pos.y})`);
   }
@@ -842,16 +884,14 @@
   }
 
   function getPinPositionMobile(item) {
-    const texts = Array.from(container.querySelectorAll("g#road-mobile_texts text"));
+    const text = getPinByMonthAndYearMobile(item);
 
-    const t = texts.filter((t) => {
-      return t.textContent === `${item.month}.${item.year}`;
-    });
-
-    return {
-      x: t[0].getBoundingClientRect().x,
-      y: t[0].getBoundingClientRect().y * 0.80125, // Wrong!
+    const domPoint = {
+      x: text.getBoundingClientRect().x,
+      y: text.getBoundingClientRect().y,
     };
+
+    return getDomToSvgCoordinateTranslation(roadElement, domPoint);
   }
 
   function getPinsContainerOffset() {
@@ -870,7 +910,7 @@
 
       case "mobile":
         return {
-          x: -290,
+          x: -220,
           y: -20,
         };
     }
@@ -890,6 +930,16 @@
         `<use class="eventPin eventPin_y${item.year}-m${item.month}" href="#symbol-pin" x="${pos.x}" y="${pos.y}" transform="matrix(1, 0, 0, 1, 0, 0)" />`
       );
     });
+  }
+
+  function getPinByMonthAndYearMobile(item) {
+    const texts = Array.from(container.querySelectorAll("g#road-mobile_texts text"));
+
+    const t = texts.filter((t) => {
+      return t.textContent === `${item.month}.${item.year}`;
+    });
+
+    return t[0];
   }
 
   // Get destiny point
@@ -921,7 +971,12 @@
     return 1 - cellsCount * getCellPercent() + getCellPercent() * 0.5 - getCurvePercent() * yi;
   }
 
-  function getDestinyPercentMobile() {}
+  function getDestinyPercentMobile(m, y) {
+    const firstY = getPinTransformYMobile({ month: json[0].month, year: json[0].year });
+    const selectedY = getPinTransformYMobile({ month: m, year: y }); //- car.getBBox().height * 0.7
+    const posY = selectedY - firstY;
+    return posY / config.maxDistanceMobile;
+  }
 
   function setNewDestinyPin(e) {
     // Set destiny in %
@@ -930,12 +985,9 @@
     const y = data.split("-")[0].substr(1);
     config.counterDestiny = getDestinyPercent(m, y);
 
-    // Required to set message position on display
-    config.selectedPinMatrix = e.currentTarget.getCTM();
-
-    // Set message
+    // Set message config
     setMessageContent(m, y);
-    setMessagePosition();
+    setMessagePosition(e.currentTarget);
 
     // Car direction move
     config.movement = config.counter < config.counterDestiny ? -1 : config.counter > config.counterDestiny ? 1 : 0;
@@ -1007,37 +1059,43 @@
 
     container.insertAdjacentHTML("beforeend", messageHTML);
 
+    // Setting message node for global use
     message = document.querySelector(".message");
-    if (!message) return;
-
-    config.roadSvgPoint = roadElement.createSVGPoint(); // Required to set message position when car arrives the clicked pin
-    config.selectedPinMatrix = container.querySelector(".eventPin").getCTM(); // Required to set message position when car arrives the clicked pin
   }
 
-  function setMessagePosition() {
-    config.roadSvgPoint.x = guide.getPointAtLength(config.counterDestiny * guide.getTotalLength()).x;
-    config.roadSvgPoint.y = guide.getPointAtLength(config.counterDestiny * guide.getTotalLength()).y;
-
-    const position = config.roadSvgPoint.matrixTransform(config.selectedPinMatrix);
+  function setMessagePosition(refElement) {
+    const position =
+      config.resolutionMode !== "mobile" ? getMessagePositionDesktopTablet(refElement) : getMessagePositionMobile();
     const offset = getMessageOffset();
 
     message.style.transform = `translate(${position.x + offset.x}px, ${position.y + offset.y}px)`;
   }
 
-  function getMessageOffset() {
-    switch (config.resolutionMode) {
-      case "desktop":
-        return {
-          x: container.querySelector(".eventPin").getBoundingClientRect().width * 0.5,
-          y: 0,
-        };
+  function getMessagePositionDesktopTablet(refElement) {
+    const p = {
+      x: refElement.getBBox().x,
+      y: refElement.getBBox().y,
+    };
 
-      case "tablet":
-        return {
-          x: container.querySelector(".eventPin").getBoundingClientRect().width * 2.85,
-          y: container.querySelector(".eventPin").getBoundingClientRect().height * 0.6,
-        };
+    return getSvgToDomCoordinateTranslation(roadElement, refElement, p);
+  }
+
+  function getMessagePositionMobile() {
+    return { x: 0, y: 0 };
+  }
+
+  function getMessageOffset() {
+    if (config.resolutionMode === "desktop" || config.resolutionMode === "tablet") {
+      return {
+        x: container.querySelector(".eventPin").getBoundingClientRect().width * 0.5,
+        y: container.querySelector(".eventPin").getBoundingClientRect().height * -0.75,
+      };
     }
+
+    return {
+      x: 0,
+      y: 0,
+    };
   }
 
   function setMessageContent(m, y) {
@@ -1047,6 +1105,35 @@
     });
 
     message.querySelector("p").innerHTML = info[0].text;
+  }
+
+  // DOM vs SVG
+  function getDomToSvgCoordinateTranslation(svg, point) {
+    const pt = svg.createSVGPoint();
+
+    pt.x = point.x;
+    pt.y = point.y;
+
+    const svgPoint = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    return {
+      x: svgPoint.x,
+      y: svgPoint.y,
+    };
+  }
+
+  function getSvgToDomCoordinateTranslation(svg, element, point) {
+    const pt = svg.createSVGPoint();
+
+    pt.x = point.x;
+    pt.y = point.y;
+
+    const domPoint = pt.matrixTransform(element.getCTM());
+
+    return {
+      x: domPoint.x,
+      y: domPoint.y,
+    };
   }
 
   /**
