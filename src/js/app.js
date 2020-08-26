@@ -512,8 +512,6 @@
    */
   const config = {
     mode: "dev",
-    counter: 1,
-    counterDestiny: 1,
     movement: 0,
     currentRow: 0,
     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -575,6 +573,8 @@
     guide = getGuideElement();
 
     // Set config
+    config.counter = config.resolutionMode === "mobile" ? 0 : 1;
+    config.counterDestiny = config.resolutionMode === "mobile" ? 0 : 1;
     config.cellPercent = getCellPercent();
     config.curvePercent = getCurvePercent();
     config.rowLength = getRowLength();
@@ -799,7 +799,7 @@
     if (config.resolutionMode === "mobile") {
       return {
         x: 1,
-        y: config.movement === 0 ? 1 : config.movement,
+        y: config.movement === 0 ? 1 : -config.movement,
       };
     }
 
@@ -855,14 +855,38 @@
     return pos;
   }
 
+  function getCarOffset() {
+    if (config.resolutionMode === "mobile") {
+      return getCarOffsetMobile();
+    }
+
+    return getCarOffsetDesktopTablet();
+  }
+
+  function getCarOffsetDesktopTablet() {
+    const scale = getCarScale();
+
+    return {
+      x: scale.x === -1 ? car.getBBox().width : 0,
+      y: 0,
+    };
+  }
+
+  function getCarOffsetMobile() {
+    const scale = getCarScale();
+
+    return {
+      x: 0,
+      y: scale.y === 1 ? -car.getBBox().height * 0.7 : car.getBBox().height * 0.4,
+    };
+  }
+
   function setCarMatrix() {
     const scale = getCarScale();
     const pos = getCarPosition();
-    const offset = scale.x === -1 ? car.getBBox().width : 0;
+    const offset = getCarOffset();
 
-    console.log(scale, "|", pos, "|", offset);
-
-    car.setAttribute("transform", `matrix(${scale.x}, 0, 0, ${scale.y}, ${pos.x + offset}, ${pos.y})`);
+    car.setAttribute("transform", `matrix(${scale.x}, 0, 0, ${scale.y}, ${pos.x + offset.x}, ${pos.y + offset.y})`);
   }
 
   // Pins settings
