@@ -3,7 +3,8 @@
  */
 (() => {
   /**
-   * This if statement avoids executing code bellow in Drupal admin and user menus
+   * ⚠️ Remove code line below if not necessary ⚠️
+   * This 'if' statement avoids executing the script in Drupal 'admin' and 'user' menus
    */
   if (window.location.href.indexOf("/admin/") !== -1 || window.location.href.indexOf("/user/") !== -1) return;
 
@@ -338,6 +339,65 @@
     <polygon style="fill:#004494;" points="42.41,1250 482.41,1348.68 482.41,1151.32"/>
   </symbol>`;
 
+  // Message
+  const rawMessageDesktopTablet = () => `
+  <div class="message message--desktop-tablet" style="
+  display: none;
+  height: auto;
+  position:relative;
+  width: 320px;">
+    <div style="
+    background-color: #F1F2F2;
+    border: 4px dashed #004494;
+    border-radius: 1rem;
+    box-sizing: border-box;
+    padding:1rem;
+    position: absolute;
+    transform: translate(-50%, -100%);
+    width:100%;">
+      <p style="
+      font-family: 'sans-serif';">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sit amet feugiat est. Maecenas eget urna a augue tincidunt efficitur. Integer non egestas massa. Integer non egestas massa. Integer non egestas massa. Integer non egestas massa.</p>
+      <div style="
+      background-color: #004494;
+      height: 32px;
+      width: 4px;
+      position: absolute;
+      transform: translate(-50%, 100%);
+      bottom: 0;
+      left: 50%;"></div>
+    </div>
+  </div>`;
+
+  const rawMessageMobile = () => `
+  <div class="message message--mobile" style="
+  display: none;
+  height: auto;
+  position:relative;
+  width: 240px;">
+    <div style="
+    background-color: #F1F2F2;
+    border: 4px dashed #004494;
+    border-radius: 1rem;
+    box-sizing: border-box;
+    left: 0;
+    padding: 1rem;
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+    width:100%;">
+      <p style="
+      font-family: 'sans-serif';">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sit amet feugiat est. Maecenas eget urna a augue tincidunt efficitur. Integer non egestas massa. Integer non egestas massa. Integer non egestas massa. Integer non egestas massa.</p>
+      <div style="
+      background-color: #004494;
+      height: 4px;
+      left: 0;
+      width: 16px;
+      position: absolute;
+      top: 50%;
+      transform: translate(-100%, -50%);"></div>
+    </div>
+  </div>`;
+
   // Custom
   const custom = (pin, car) => `
   <!-- Symbols -->
@@ -511,7 +571,7 @@
    * Global config
    */
   const config = {
-    mode: "dev",
+    mode: "dev", // Set to "dev" to display logs in screen
     movement: 0,
     currentRow: 0,
     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -523,7 +583,7 @@
   /**
    * DOM elements
    */
-  // DOM container
+  // Widget container
   const container = document.querySelector("div.content.widget-10-years");
   if (!container) return;
 
@@ -538,11 +598,6 @@
 
   // Car element
   let car;
-  //car.setAttribute("transform", `rotate(180 ${car.getBBox().width * 0.5} ${car.getBBox().height * 0.5})`);
-  //car.setAttribute("transform", `matrix(1, 0, 0, 1, ${car.getBBox().x + car.getBBox().width}, 0)`);
-  //car.setAttribute("transform", `matrix(-1, 0, 0, 1, ${car.getBBox().x + car.getBBox().width}, 0)`);
-  //car.setAttribute("transform", `matrix(-1, 0, 0, 1, ${car.getBBox().x + car.getBBox().width}, 0) translate(-128, 0)`);
-  //car.setAttribute("transform", `matrix(1, 0, 0, 1, 0, 0) translate(128, 0)`);
 
   // Message element
   let message;
@@ -568,6 +623,7 @@
 
     // Set car
     car = container.querySelector("image#car-image");
+    car.style.pointerEvents = "none";
 
     // Set guide element for car animation reference
     guide = getGuideElement();
@@ -606,9 +662,6 @@
     if (config.mode === "dev") {
       logHelper = document.querySelector(".log-helper");
     }
-
-    // Init loop
-    requestAnimationFrame(loop);
   }
 
   function loop() {
@@ -650,7 +703,7 @@
     /**
      * Logging
      */
-    if (config.mode === "dev") {
+    if (config.mode === "dev" && logHelper) {
       let output = "";
       Object.keys(config).forEach((k) => (output += `${k}: ${config[k]}<br/>`));
       logHelper.innerHTML = output;
@@ -662,6 +715,7 @@
 
   function onResize(e) {
     init();
+    setMessagePosition();
   }
 
   function getResolutionMode() {
@@ -997,12 +1051,15 @@
 
   function getDestinyPercentMobile(m, y) {
     const firstY = getPinTransformYMobile({ month: json[0].month, year: json[0].year });
-    const selectedY = getPinTransformYMobile({ month: m, year: y }); //- car.getBBox().height * 0.7
+    const selectedY = getPinTransformYMobile({ month: m, year: y });
     const posY = selectedY - firstY;
     return posY / config.maxDistanceMobile;
   }
 
   function setNewDestinyPin(e) {
+    // Set reference pin to set message position on resize
+    config.refElement = e.currentTarget;
+
     // Set destiny in %
     const data = e.currentTarget.classList[1].split("_")[1];
     const m = data.split("-")[1].substr(1);
@@ -1011,7 +1068,7 @@
 
     // Set message config
     setMessageContent(m, y);
-    setMessagePosition(e.currentTarget);
+    setMessagePosition();
 
     // Car direction move
     config.movement = config.counter < config.counterDestiny ? -1 : config.counter > config.counterDestiny ? 1 : 0;
@@ -1052,63 +1109,45 @@
 
   // Message settings
   function initMessage() {
-    // Adding message box
-    const messageHTML = `
-    <div class="message" style="
-    display: none;
-    height: auto;
-    position:relative;
-    width: 320px;">
-      <div style="
-      background-color: #F1F2F2;
-      border: 4px dashed #004494;
-      border-radius: 1rem;
-      box-sizing: border-box;
-      padding:1rem;
-      position: absolute;
-      transform: translate(-50%, -100%);
-      width:100%;">
-        <p style="
-        font-family: 'sans-serif';">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sit amet feugiat est. Maecenas eget urna a augue tincidunt efficitur. Integer non egestas massa. Integer non egestas massa. Integer non egestas massa. Integer non egestas massa.</p>
-        <div style="
-        background-color: #004494;
-        height: 32px;
-        width: 4px;
-        position: absolute;
-        transform: translate(-50%, 100%);
-        bottom: 0;
-        left: 50%;"></div>
-      </div>
-    </div>`;
+    // Check if message already exists
+    const oldMessage = document.querySelector(".message");
 
+    if (oldMessage) {
+      oldMessage.parentElement.removeChild(oldMessage);
+    }
+
+    // Adding new message box
+    const messageHTML = config.resolutionMode === "mobile" ? rawMessageMobile() : rawMessageDesktopTablet();
     container.insertAdjacentHTML("beforeend", messageHTML);
 
     // Setting message node for global use
     message = document.querySelector(".message");
+    message.style.pointerEvents = "none";
+
+    // Set message position
+    if (config.refElement) {
+      setMessagePosition();
+    }
   }
 
-  function setMessagePosition(refElement) {
-    const position =
-      config.resolutionMode !== "mobile" ? getMessagePositionDesktopTablet(refElement) : getMessagePositionMobile();
+  function setMessagePosition() {
+    const position = getMessagePosition(config.refElement);
     const offset = getMessageOffset();
 
     message.style.transform = `translate(${position.x + offset.x}px, ${position.y + offset.y}px)`;
   }
 
-  function getMessagePositionDesktopTablet(refElement) {
+  function getMessagePosition() {
     const p = {
-      x: refElement.getBBox().x,
-      y: refElement.getBBox().y,
+      x: config.refElement.getBBox().x,
+      y: config.refElement.getBBox().y,
     };
 
-    return getSvgToDomCoordinateTranslation(roadElement, refElement, p);
-  }
-
-  function getMessagePositionMobile() {
-    return { x: 0, y: 0 };
+    return getSvgToDomCoordinateTranslation(roadElement, config.refElement, p);
   }
 
   function getMessageOffset() {
+    // Desktop & Tablet
     if (config.resolutionMode === "desktop" || config.resolutionMode === "tablet") {
       return {
         x: container.querySelector(".eventPin").getBoundingClientRect().width * 0.5,
@@ -1116,9 +1155,10 @@
       };
     }
 
+    // Mobile
     return {
-      x: 0,
-      y: 0,
+      x: container.querySelector(".eventPin").getBoundingClientRect().width * 1.25,
+      y: container.querySelector(".eventPin").getBoundingClientRect().height * 0.5,
     };
   }
 
@@ -1163,10 +1203,10 @@
   /**
    * Events
    */
-  // Resize widget
+  // Re-config widget on screen resize
   window.addEventListener("resize", onResize);
 
-  // Keyboard events
+  // Keyboard events to move the car manually in dev mode
   document.addEventListener("keydown", (e) => {
     if (config.mode !== "dev") return;
 
@@ -1195,8 +1235,22 @@
     }
   });
 
+  // Close message on click anywhere but pins
+  document.addEventListener("click", (e) => {
+    const path = e.path;
+
+    const pin = path.filter((n) => {
+      return n.classList ? Array.from(n.classList).includes("eventPin") : false;
+    });
+
+    if (pin.length === 0) {
+      message.style.display = "none";
+    }
+  });
+
   /**
    * Init
    */
   init();
+  requestAnimationFrame(loop);
 })();
