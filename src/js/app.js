@@ -571,13 +571,25 @@
    * Global config
    */
   const config = {
-    mode: "dev", // Set to "dev" to display logs in screen
+    mode: "", // Set to "dev" to display logs in screen
     movement: 0,
     currentRow: 0,
     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     years: [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020],
-    speed: 0.00075,
+    speed: 0.001,
     maxDistanceMobile: 0,
+  };
+
+  /**
+   * Loop config
+   */
+  const loopConfig = {
+    fps: 30,
+    fpsInterval: 0,
+    startTime: 0,
+    now: 0,
+    then: 0,
+    elapsed: 0,
   };
 
   /**
@@ -665,52 +677,63 @@
   }
 
   function loop() {
-    if (config.counterDestiny !== 0) {
-      // Car arrives selected pin
-      if (config.counterDestiny >= config.counter - 0.00065 && config.counterDestiny <= config.counter + 0.00065) {
-        // Final position
-        config.counter = config.counterDestiny;
+    // Request another frame
+    requestAnimationFrame(loop);
+
+    // Calc elapsed time since last loop
+    loopConfig.now = Date.now();
+    loopConfig.elapsed = loopConfig.now - loopConfig.then;
+
+    // if enough time has elapsed, draw the next frame
+    if (loopConfig.elapsed > loopConfig.fpsInterval) {
+      loopConfig.then = loopConfig.now - (loopConfig.elapsed % loopConfig.fpsInterval);
+
+      if (config.counterDestiny !== 0) {
+        // Car arrives selected pin
+        if (config.counterDestiny >= config.counter - 0.00065 && config.counterDestiny <= config.counter + 0.00065) {
+          // Final position
+          config.counter = config.counterDestiny;
+
+          // Set car configuration
+          setCarMatrix();
+
+          // Set message
+          message.style.display = "block";
+
+          // Reset values
+          config.counterDestiny = 0;
+          config.movement = 0;
+        }
+      }
+
+      if (config.movement !== 0) {
+        // Hide message if car moves
+        if (message.style.display !== "none") {
+          message.style.display = "none";
+        }
+
+        // Set counter
+        const power = config.resolutionMode === "mobile" ? 250 : 5;
+        const factor = 1 + Math.abs(config.counterDestiny - config.counter) * power;
+        config.counter = config.counter - config.speed * config.movement * factor;
+        config.counter = config.counter < 0 ? 0 : config.counter > 1 ? 1 : config.counter;
+
+        // Check car orientation
+        checkRowChange();
 
         // Set car configuration
         setCarMatrix();
-
-        // Set message
-        message.style.display = "block";
-
-        // Reset values
-        config.counterDestiny = 0;
-        config.movement = 0;
-      }
-    }
-
-    if (config.movement !== 0) {
-      // Hide message if car moves
-      if (message.style.display !== "none") {
-        message.style.display = "none";
       }
 
-      // Set counter
-      config.counter = config.counter - config.speed * config.movement;
-      config.counter = config.counter < 0 ? 0 : config.counter > 1 ? 1 : config.counter;
-
-      // Check car orientation
-      checkRowChange();
-
-      // Set car configuration
-      setCarMatrix();
+      /**
+       * Logging
+       */
+      if (config.mode === "dev" && logHelper) {
+        let output = "";
+        Object.keys(config).forEach((k) => (output += `${k}: ${config[k]}<br/>`));
+        logHelper.innerHTML = output;
+      }
     }
-
-    /**
-     * Logging
-     */
-    if (config.mode === "dev" && logHelper) {
-      let output = "";
-      Object.keys(config).forEach((k) => (output += `${k}: ${config[k]}<br/>`));
-      logHelper.innerHTML = output;
-    }
-
-    // Looping!
-    requestAnimationFrame(loop);
   }
 
   function onResize(e) {
@@ -771,6 +794,13 @@
     if (!guide) return;
     guide.setAttribute("transform", "matrix(1, 0, 0, 1, 0, 0)");
     return guide;
+  }
+
+  function startAnimating(fps) {
+    loopConfig.fpsInterval = 1000 / fps;
+    loopConfig.then = Date.now();
+    loopConfig.startTime = loopConfig.then;
+    loop();
   }
 
   // Global config settings
@@ -1125,13 +1155,13 @@
     message.style.pointerEvents = "none";
 
     // Set message position
-    if (config.refElement) {
-      setMessagePosition();
-    }
+    setMessagePosition();
   }
 
   function setMessagePosition() {
-    const position = getMessagePosition(config.refElement);
+    if (!config.refElement) return;
+
+    const position = getMessagePosition();
     const offset = getMessageOffset();
 
     message.style.transform = `translate(${position.x + offset.x}px, ${position.y + offset.y}px)`;
@@ -1206,7 +1236,7 @@
   // Re-config widget on screen resize
   window.addEventListener("resize", onResize);
 
-  // Keyboard events to move the car manually in dev mode
+  // Keyboard events to move the car manually in 'dev' mode
   document.addEventListener("keydown", (e) => {
     if (config.mode !== "dev") return;
 
@@ -1252,5 +1282,5 @@
    * Init
    */
   init();
-  requestAnimationFrame(loop);
+  startAnimating(loopConfig.fps);
 })();
