@@ -571,7 +571,7 @@
    * Global config
    */
   const config = {
-    mode: "", // Set to "dev" to display logs in screen
+    mode: "", // Set to "dev" for logs in screen
     movement: 0,
     currentRow: 0,
     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -584,7 +584,7 @@
    * Loop config
    */
   const loopConfig = {
-    fps: 30,
+    fps: 60,
     fpsInterval: 0,
     startTime: 0,
     now: 0,
@@ -713,7 +713,7 @@
         }
 
         // Set counter
-        const power = config.resolutionMode === "mobile" ? 250 : 5;
+        const power = config.resolutionMode === "mobile" ? 150 : 3;
         const factor = 1 + Math.abs(config.counterDestiny - config.counter) * power;
         config.counter = config.counter - config.speed * config.movement * factor;
         config.counter = config.counter < 0 ? 0 : config.counter > 1 ? 1 : config.counter;
@@ -791,7 +791,6 @@
 
   function getGuideElement() {
     const guide = container.querySelector("#guide-line_dashed");
-    if (!guide) return;
     guide.setAttribute("transform", "matrix(1, 0, 0, 1, 0, 0)");
     return guide;
   }
@@ -1043,11 +1042,11 @@
   function getPinByMonthAndYearMobile(item) {
     const texts = Array.from(container.querySelectorAll("g#road-mobile_texts text"));
 
-    const t = texts.filter((t) => {
+    const t = texts.find((t) => {
       return t.textContent === `${item.month}.${item.year}`;
     });
 
-    return t[0];
+    return t;
   }
 
   // Get destiny point
@@ -1158,15 +1157,6 @@
     setMessagePosition();
   }
 
-  function setMessagePosition() {
-    if (!config.refElement) return;
-
-    const position = getMessagePosition();
-    const offset = getMessageOffset();
-
-    message.style.transform = `translate(${position.x + offset.x}px, ${position.y + offset.y}px)`;
-  }
-
   function getMessagePosition() {
     const p = {
       x: config.refElement.getBBox().x,
@@ -1192,13 +1182,22 @@
     };
   }
 
+  function setMessagePosition() {
+    if (!config.refElement) return;
+
+    const position = getMessagePosition();
+    const offset = getMessageOffset();
+
+    message.style.transform = `translate(${position.x + offset.x}px, ${position.y + offset.y}px)`;
+  }
+
   function setMessageContent(m, y) {
     // Get message content
-    const info = json.filter((i) => {
+    const info = json.find((i) => {
       return i.month === m && i.year === y;
     });
 
-    message.querySelector("p").innerHTML = info[0].text;
+    message.querySelector("p").innerHTML = info.text;
   }
 
   // DOM vs SVG
